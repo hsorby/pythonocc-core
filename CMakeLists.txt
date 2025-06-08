@@ -22,7 +22,7 @@ project(PYTHONOCC)
 # set pythonOCC version
 set(PYTHONOCC_VERSION_MAJOR 7)
 set(PYTHONOCC_VERSION_MINOR 9)
-set(PYTHONOCC_VERSION_PATCH 0)
+set(PYTHONOCC_VERSION_PATCH 1)
 
 #  Empty for official releases, set to -dev, -rc1, etc for development releases
 set(PYTHONOCC_VERSION_DEVEL)
@@ -30,7 +30,7 @@ set(PYTHONOCC_VERSION_DEVEL)
 # set OCCT version
 set(OCCT_VERSION_MAJOR 7)
 set(OCCT_VERSION_MINOR 9)
-set(OCCT_VERSION_PATCH 0)
+set(OCCT_VERSION_PATCH 1)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
@@ -76,7 +76,6 @@ include_directories(OPENGL_INCLUDE_DIR)
 #################
 # Build options #
 #################
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/OCCT_Modules.cmake)
 # add an option to choose toolkits to compile
 if(OPENGL_FOUND)
   option_with_default(PYTHONOCC_WRAP_VISU "Compile Visualisation" ON)
@@ -164,6 +163,7 @@ if(DEFINED OCCT_INCLUDE_DIR)
 # if OCCT_INCLUDE_DIR is not passed at command line,
 # find OCE automatically
 else(OCCT_INCLUDE_DIR)
+  message(STATUS "OpenCASCADE_DIR: ${OpenCASCADE_DIR}")
   find_package(OpenCASCADE ${OCCT_VERSION_MAJOR}.${OCCT_VERSION_MINOR}.${OCCT_VERSION_PATCH} EXACT REQUIRED)
   if(OpenCASCADE_FOUND)
     message(STATUS "OpenCASCADE version found: " ${OpenCASCADE_MAJOR_VERSION} "." ${OpenCASCADE_MINOR_VERSION} "." ${OpenCASCADE_MAINTENANCE_VERSION})
@@ -183,6 +183,8 @@ find_file(OCCT_GP_PNT_HEADER_LOCATION "gp_Pnt.hxx" PATHS ${OpenCASCADE_INCLUDE_D
 if(NOT OCCT_GP_PNT_HEADER_LOCATION)
     message(FATAL_ERROR "gp_Pnt.hxx can not be found.")
 endif()
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/OCCT_Modules.cmake)
 
 ##############################################
 # Installation directory                     #
@@ -206,13 +208,14 @@ message(STATUS "pythonocc modules will be installed to: ${PYTHONOCC_INSTALL_DIRE
 #############################################
 # List of OCE shared libraries to link with #
 #############################################
-set(OCCT_MODEL_LIBRARIES TKernel TKMath TKBRep TKG2d TKG3d TKGeomBase TKBO
-                        TKBool TKFeat TKFillet TKGeomAlgo TKHLR TKMesh TKOffset
-                        TKPrim TKShHealing TKTopAlgo TKXMesh)
-set(OCCT_VISUALIZATION_LIBRARIES TKService TKV3d TKOpenGl TKMeshVS)
-set(OCCT_DATAEXCHANGE_LIBRARIES TKDE TKXSBase TKDESTEP TKDEIGES TKDESTL TKDEVRML TKDECascade TKDEOBJ TKDEGLTF TKDEPLY TKCDF TKLCAF TKXCAF TKVCAF TKXmlXCAF TKBinXCAF TKRWMesh TKService TKV3d)
-set(OCCT_OCAF_LIBRARIES TKCDF TKLCAF TKCAF TKBinL TKXmlL TKBin TKXml TKStdL
-                       TKStd TKTObj TKBinTObj TKXmlTObj TKVCAF TKService TKV3d)
+message(STATUS "OpenCASCADE_FoundationClasses_LIBRARIES: ${OpenCASCADE_FoundationClasses_LIBRARIES}")
+message(STATUS "OpenCASCADE_ModelingData_LIBRARIES: ${OpenCASCADE_ModelingData_LIBRARIES}")
+message(STATUS "OpenCASCADE_ApplicationFramework_LIBRARIES: ${OpenCASCADE_ApplicationFramework_LIBRARIES}")
+message(STATUS "OpenCASCADE_DataExchange_LIBRARIES: ${OpenCASCADE_DataExchange_LIBRARIES}")
+set(OCCT_MODEL_LIBRARIES ${OpenCASCADE_FoundationClasses_LIBRARIES})
+set(OCCT_VISUALIZATION_LIBRARIES ${OpenCASCADE_Visualization_LIBRARIES})
+set(OCCT_DATAEXCHANGE_LIBRARIES ${OpenCASCADE_DataExchange_LIBRARIES})
+set(OCCT_OCAF_LIBRARIES ${OpenCASCADE_ApplicationFramework_LIBRARIES})
 
 ################
 # Headers path #
