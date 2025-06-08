@@ -1,0 +1,52 @@
+name: Build Python Wheels
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install cibuildwheel
+
+      - name: Download and unzip OCCT
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            curl -L -o occt.zip https://github.com/hsorby/OCCT/releases/download/v7.9.9/install-linux-gcc-x64.zip
+          elif [[ "$RUNNER_OS" == "Windows" ]]; then
+            curl -L -o occt.zip https://github.com/hsorby/OCCT/releases/download/v7.9.9/install-windows-x64.zip
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            curl -L -o occt.zip https://github.com/hsorby/OCCT/releases/download/v7.9.9/install-macos-x64.zip
+          fi
+          unzip occt.zip -d occt
+
+        shell: bash
+
+      - name: Build wheels
+        env:
+          CIBW_ENVIRONMENT: "OCCT_ROOT=$(pwd)/occt"
+        run: |
+          python -m cibuildwheel --output-dir wheelhouse
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: wheelhouse/*.whl
+
