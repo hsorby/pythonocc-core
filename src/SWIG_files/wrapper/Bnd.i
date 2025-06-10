@@ -1788,32 +1788,6 @@ Compares the plane P with the set of bounding boxes to be sorted by this compari
 ") Compare;
 		const TColStd_ListOfInteger & Compare(const gp_Pln & P);
 
-		/****** Bnd_BoundSortBox::Destroy ******/
-		/****** md5 signature: 73111f72f4ab0474eb2cfbd7e4af4e1a ******/
-		%feature("compactdefaultargs") Destroy;
-		%feature("autodoc", "Return
--------
-None
-
-Description
------------
-No available documentation.
-") Destroy;
-		void Destroy();
-
-		/****** Bnd_BoundSortBox::Dump ******/
-		/****** md5 signature: 15b4b2e195645aebb43170ff7f15952a ******/
-		%feature("compactdefaultargs") Dump;
-		%feature("autodoc", "Return
--------
-None
-
-Description
------------
-No available documentation.
-") Dump;
-		void Dump();
-
 		/****** Bnd_BoundSortBox::Initialize ******/
 		/****** md5 signature: dbb5dab5abfd063e114422a2e03ca032 ******/
 		%feature("compactdefaultargs") Initialize;

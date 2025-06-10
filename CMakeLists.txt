@@ -22,7 +22,7 @@ project(PYTHONOCC)
 # set pythonOCC version
 set(PYTHONOCC_VERSION_MAJOR 7)
 set(PYTHONOCC_VERSION_MINOR 9)
-set(PYTHONOCC_VERSION_PATCH 1)
+set(PYTHONOCC_VERSION_PATCH 9)
 
 #  Empty for official releases, set to -dev, -rc1, etc for development releases
 set(PYTHONOCC_VERSION_DEVEL)
@@ -30,7 +30,7 @@ set(PYTHONOCC_VERSION_DEVEL)
 # set OCCT version
 set(OCCT_VERSION_MAJOR 7)
 set(OCCT_VERSION_MINOR 9)
-set(OCCT_VERSION_PATCH 1)
+set(OCCT_VERSION_PATCH 9)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
@@ -77,12 +77,6 @@ include_directories(OPENGL_INCLUDE_DIR)
 # Build options #
 #################
 # add an option to choose toolkits to compile
-if(OPENGL_FOUND)
-  option_with_default(PYTHONOCC_WRAP_VISU "Compile Visualisation" ON)
-else(OPENGL_FOUND)
-  message(WARNING "OpenGL library not found, Visualization compilation is turned OFF")
-  set(PYTHONOCC_WRAP_VISU "Compile Visualisation" OFF)
-endif(OPENGL_FOUND)
 option_with_default(PYTHONOCC_WRAP_DATAEXCHANGE "Compile DataExchange wrapper" ON)
 option_with_default(PYTHONOCC_WRAP_OCAF "Compile OCCT Application Framework wrapper" ON)
 option_with_default(SWIG_HIDE_WARNINGS "Check this option if you want a less verbose swig output." ON)
@@ -100,9 +94,11 @@ if(PYTHONOCC_MESHDS_NUMPY)
     message(STATUS "Numpy include directory: ${Python3_NumPy_INCLUDE_DIRS}")
     set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} -DBUILD_MESHDS_NUMPY)
 else(PYTHONOCC_MESHDS_NUMPY)
-    find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
+    find_package(Python3 COMPONENTS Interpreter Development NumPy REQUIRED)
+    include_directories(${Python3_NumPy_INCLUDE_DIRS})
+    message(STATUS "Numpy include directory: ${Python3_NumPy_INCLUDE_DIRS}")
 endif(PYTHONOCC_MESHDS_NUMPY)
-message(STATUS "Python3 interpreter:" ${Python3_EXECUTABLE})
+message(STATUS "Python interpreter:" ${Python3_EXECUTABLE})
 message(STATUS "Python include directory: ${Python3_INCLUDE_DIRS}")
 message(STATUS "Python library release: ${Python3_LIBRARY_RELEASE}")
 
@@ -163,7 +159,6 @@ if(DEFINED OCCT_INCLUDE_DIR)
 # if OCCT_INCLUDE_DIR is not passed at command line,
 # find OCE automatically
 else(OCCT_INCLUDE_DIR)
-  message(STATUS "OpenCASCADE_DIR: ${OpenCASCADE_DIR}")
   find_package(OpenCASCADE ${OCCT_VERSION_MAJOR}.${OCCT_VERSION_MINOR}.${OCCT_VERSION_PATCH} EXACT REQUIRED)
   if(OpenCASCADE_FOUND)
     message(STATUS "OpenCASCADE version found: " ${OpenCASCADE_MAJOR_VERSION} "." ${OpenCASCADE_MINOR_VERSION} "." ${OpenCASCADE_MAINTENANCE_VERSION})
@@ -185,6 +180,17 @@ if(NOT OCCT_GP_PNT_HEADER_LOCATION)
 endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/OCCT_Modules.cmake)
+
+message(STATUS "====== OCCT_TOOLKIT_VISUALIZATION: ${OCCT_TOOLKIT_VISUALIZATION}")
+if(OPENGL_FOUND AND OCCT_TOOLKIT_VISUALIZATION)
+  option_with_default(PYTHONOCC_WRAP_VISU "Compile Visualisation" ON)
+elseif(OPENGL_FOUND)
+  message(STATUS "OpenGL library found, but Visualization compilation is turned OFF")
+  set(PYTHONOCC_WRAP_VISU "Compile Visualisation" OFF)
+else()
+  message(WARNING "OpenGL library not found, Visualization compilation is turned OFF")
+  set(PYTHONOCC_WRAP_VISU "Compile Visualisation" OFF)
+endif()
 
 ##############################################
 # Installation directory                     #

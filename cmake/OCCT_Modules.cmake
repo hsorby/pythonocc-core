@@ -450,6 +450,14 @@ set(TKXmlTObj_LIBS
   XmlTObjDrivers
 )
 
+set(TKExpress_LIBS
+  Expr
+  ExprIntrp
+)
+
+foreach(_LIB ${OpenCASCADE_ModelingAlgorithms_LIBRARIES})
+message(STATUS "LLIB: ${_LIB}")
+endforeach()
 set(OCCT_TOOLKIT_MODEL_LIBS ${OpenCASCADE_FoundationClasses_LIBRARIES} ${OpenCASCADE_ModelingData_LIBRARIES})
 set(OCCT_TOOLKIT_MODEL)
 foreach(_LIB ${OCCT_TOOLKIT_MODEL_LIBS})

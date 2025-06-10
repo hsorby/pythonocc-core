@@ -1,0 +1,31 @@
+[build-system]
+requires = ["scikit-build-core", "swig", "numpy"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "py-occt-de"
+version = "7.9.9"
+description = "Example project using scikit-build-core, cibuildwheel, and numpy"
+authors = [{ name = "Example Author", email = "author@example.com" }]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+
+[tool.scikit-build]
+wheel.packages = [ "py-occt-de",]
+cmake.version = ">=3.18"
+cmake.args = [
+  "-DOpenCASCADE_DIR=$ENV{OpenCASCADE_DIR}",
+  "-DCMAKE_BUILD_TYPE=Release",
+]
+
+[tool.cibuildwheel]
+build = "cp311-macosx_x86_64"
+
+[tool.cibuildwheel.macos]
+environment = { OpenCASCADE_DIR="$(pwd)/occt" }
+
+
+#[[tool.cibuildwheel.overrides]]
+#select = "*"
+#inherit.environment = "append"
